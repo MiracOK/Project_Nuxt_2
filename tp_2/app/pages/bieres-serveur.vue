@@ -1,21 +1,48 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+
+const route = useRoute()
+const router = useRouter()
+
 const posts = ref([])
 const getPosts = async () => {
     posts.value = await $fetch('https://api.sampleapis.com/beers/ale')
 }
 onMounted(getPosts)
+const maxPrice = computed({
+    get: () => route.query.pricemax || '',
+    set: (val) => {
+        router.push({ query: { ...route.query, pricemax: val || undefined } })
+    }
+})
+
+const filteredPosts = computed(() => {
+    if (!posts.value) return []
+    
+    const max = parseFloat(route.query.pricemax)
+    
+    if (max && !isNaN(max)) {
+        return posts.value.filter(post => {
+            const price = parseFloat(String(post.price).replace(/[^0-9.]/g, ''))
+            return price <= max
+        })
+    }
+    
+    return posts.value
+})
 </script>
 
-<template>   
+<template>
     <div v-if="$route.params.id">
         <NuxtPage />
     </div>
 
     <div v-else>
         <h2>Liste de toutes les bières :</h2>
+        <span>Filtrer par le Prix Maximum :</span>
+        <input type="number" v-model="maxPrice" placeholder="Ex: 15">
 
-        <div v-for="post in posts" :key="post.id" style="font-family:cursive;">
+        <div v-for="post in filteredPosts" :key="post.id" style="font-family:cursive;">
             <span>Price : {{ post.price }}</span><br>
             <span>Name : {{ post.name }}</span><br>
             <span>Average Ratings : {{ post.rating.average }}</span><br>
