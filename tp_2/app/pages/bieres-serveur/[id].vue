@@ -5,7 +5,8 @@ const route = useRoute()
 const posts = ref(null)
 
 const getPosts = async () => {
-    posts.value = await $fetch(`https://api.sampleapis.com/beers/ale/${route.params.id}`)
+    const beerType = route.query.type || 'ale'
+    posts.value = await $fetch(`https://api.sampleapis.com/beers/${beerType}/${route.params.id}`)
 }
 
 onMounted(getPosts)

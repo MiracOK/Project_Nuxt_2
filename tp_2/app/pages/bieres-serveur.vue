@@ -1,14 +1,20 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
 
+const beerType = computed(() => route.query.type || 'ale')
+
 const posts = ref([])
 const getPosts = async () => {
-    posts.value = await $fetch('https://api.sampleapis.com/beers/ale')
+    posts.value = await $fetch(`https://api.sampleapis.com/beers/${beerType.value}`)
 }
 onMounted(getPosts)
+watch(beerType, () => {
+    getPosts()
+})
+
 const maxPrice = computed({
     get: () => route.query.pricemax || '',
     set: (val) => {
@@ -47,7 +53,7 @@ const filteredPosts = computed(() => {
             <span>Name : {{ post.name }}</span><br>
             <span>Average Ratings : {{ post.rating.average }}</span><br>
             <span>Number of Reviews : {{ post.rating.reviews }}</span><br>
-            <NuxtLink :to="`/bieres-serveur/${post.id}`" style="color: violet;">Voir le détail</NuxtLink>
+            <NuxtLink :to="{ path: `/bieres-serveur/${post.id}`, query: { type: route.query.type || 'ale' } }" style="color: violet;">Voir le détail</NuxtLink>
             <br><br>
         </div>
     </div>

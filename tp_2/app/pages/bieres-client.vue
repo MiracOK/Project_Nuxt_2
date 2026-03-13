@@ -4,7 +4,8 @@ import { computed } from 'vue'
 const route = useRoute()
 const router = useRouter()
 
-const { data: posts } = await useFetch('https://api.sampleapis.com/beers/ale')
+const beerType = computed(() => route.query.type || 'ale')
+const { data: posts } = await useFetch(() => `https://api.sampleapis.com/beers/${beerType.value}`)
 
 const maxPrice = computed({
     get: () => route.query.pricemax || '',
@@ -44,7 +45,8 @@ const filteredPosts = computed(() => {
             <span>Name : {{ post.name }}</span><br>
             <span>Average Ratings : {{ post.rating.average }}</span><br>
             <span>Number of Reviews : {{ post.rating.reviews }}</span><br>
-            <NuxtLink :to="`/bieres-client/${post.id}`" style="color: violet;">Voir le détail</NuxtLink>
+            <!-- On passe l'ID de la bière ET aussi le type de bière sélectionné dans l'URL -->
+            <NuxtLink :to="{ path: `/bieres-client/${post.id}`, query: { type: route.query.type || 'ale' } }" style="color: violet;">Voir le détail</NuxtLink>
             <br><br>
         </div>
     </div>

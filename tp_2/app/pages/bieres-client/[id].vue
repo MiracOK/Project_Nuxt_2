@@ -1,7 +1,9 @@
 <script setup>
 const route = useRoute()
 console.log(route.params.id)
-const { data: posts } = await useFetch(`https://api.sampleapis.com/beers/ale/${route.params.id}`)
+
+const beerType = computed(() => route.query.type || 'ale')
+const { data: posts } = await useFetch(() => `https://api.sampleapis.com/beers/${beerType.value}/${route.params.id}`)
 </script>
 
 <template>
